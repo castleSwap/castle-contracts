@@ -14,7 +14,9 @@
 pragma solidity 0.6.12;
 
 // XXX: import "./SafeMath.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./SafeMath.sol";
+
 
 contract Timelock {
     using SafeMath for uint;
