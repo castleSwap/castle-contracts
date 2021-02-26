@@ -1,6 +1,6 @@
 # Viking Swap
 
-https://www.vikingswap.finance Feel free to read the code. More details coming soon.
+https://www.castleswap.com Feel free to read the code. More details coming soon.
 
 ## Deployed Contracts / Hash
 
