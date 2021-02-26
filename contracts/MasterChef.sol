@@ -2,10 +2,14 @@
 
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts/math/SafeMath.sol";
+// import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import './SafeMath.sol'; 
+import './Ownable.sol'; 
+
 
 import "./CastleToken.sol";
 
