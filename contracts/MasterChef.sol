@@ -7,13 +7,9 @@ import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./VikingToken.sol";
+import "./CastleToken.sol";
 
-// MasterChef is the master of Egg. He can make Egg and he is a fair guy.
-//
-// Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once EGG is sufficiently
-// distributed and the community can show to govern itself.
+// MasterChef is the master of Castles.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
 contract MasterChef is Ownable {
@@ -25,7 +21,7 @@ contract MasterChef is Ownable {
         uint256 amount;         // How many LP tokens the user has provided.
         uint256 rewardDebt;     // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of EGGs
+        // We do some fancy math here. Basically, any point in time, the amount of CASTLEs
         // entitled to a user but is pending to be distributed is:
         //
         //   pending reward = (user.amount * pool.accEggPerShare) - user.rewardDebt
@@ -40,19 +36,19 @@ contract MasterChef is Ownable {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. EGGs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that EGGs distribution occurs.
-        uint256 accEggPerShare;   // Accumulated EGGs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. CASTLEs to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that CASTLEs distribution occurs.
+        uint256 accEggPerShare;   // Accumulated CASTLEs per share, times 1e12. See below.
         uint16 depositFeeBP;      // Deposit fee in basis points
     }
 
-    // The EGG TOKEN!
-    VikingToken public viking;
+    // The CASTLE TOKEN!
+    CastleToken public castle;
     // Dev address.
     address public devaddr;
-    // EGG tokens created per block.
-    uint256 public vikingPerBlock;
-    // Bonus muliplier for early viking makers.
+    // CASTLE tokens created per block.
+    uint256 public castlePerBlock;
+    // Bonus muliplier for early castle  makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
     // Deposit Fee address
     address public feeAddress;
@@ -63,7 +59,7 @@ contract MasterChef is Ownable {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when EGG mining starts.
+    // The block number when CASTLE mining starts.
     uint256 public startBlock;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -71,16 +67,16 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
-        VikingToken _viking,
+        CastleToken _castle,
         address _devaddr,
         address _feeAddress,
-        uint256 _vikingPerBlock,
+        uint256 _castlePerBlock,
         uint256 _startBlock
     ) public {
-        viking = _viking;
+        castle = _castle;
         devaddr = _devaddr;
         feeAddress = _feeAddress;
-        vikingPerBlock = _vikingPerBlock;
+        castlePerBlock = _castlePerBlock;
         startBlock = _startBlock;
     }
 
@@ -106,7 +102,7 @@ contract MasterChef is Ownable {
         }));
     }
 
-    // Update the given pool's EGG allocation point and deposit fee. Can only be called by the owner.
+    // Update the given pool's CASTLE allocation point and deposit fee. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _depositFeeBP, bool _withUpdate) public onlyOwner {
         require(_depositFeeBP <= 10000, "set: invalid deposit fee basis points");
         if (_withUpdate) {
@@ -122,7 +118,7 @@ contract MasterChef is Ownable {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending EGGs on frontend.
+    // View function to see pending CASTLEs on frontend.
     function pendingEgg(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
@@ -130,8 +126,8 @@ contract MasterChef is Ownable {
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 vikingReward = multiplier.mul(vikingPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accEggPerShare = accEggPerShare.add(vikingReward.mul(1e12).div(lpSupply));
+            uint256 castleReward = multiplier.mul(castlePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accEggPerShare = accEggPerShare.add(castleReward.mul(1e12).div(lpSupply));
         }
         return user.amount.mul(accEggPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -156,14 +152,14 @@ contract MasterChef is Ownable {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 vikingReward = multiplier.mul(vikingPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        viking.mint(devaddr, vikingReward.div(10));
-        viking.mint(address(this), vikingReward);
-        pool.accEggPerShare = pool.accEggPerShare.add(vikingReward.mul(1e12).div(lpSupply));
+        uint256 castleReward = multiplier.mul(castlePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        castle.mint(devaddr, castleReward.div(10));
+        castle.mint(address(this), castleReward);
+        pool.accEggPerShare = pool.accEggPerShare.add(castleReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for EGG allocation.
+    // Deposit LP tokens to MasterChef for CASTLE allocation.
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -217,13 +213,13 @@ contract MasterChef is Ownable {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe viking transfer function, just in case if rounding error causes pool to not have enough EGGs.
+    // Safe castle transfer function, just in case if rounding error causes pool to not have enough CASTLEs.
     function safeEggTransfer(address _to, uint256 _amount) internal {
-        uint256 vikingBal = viking.balanceOf(address(this));
-        if (_amount > vikingBal) {
-            viking.transfer(_to, vikingBal);
+        uint256 castleBal = castle.balanceOf(address(this));
+        if (_amount > castleBal) {
+            castle.transfer(_to, castleBal);
         } else {
-            viking.transfer(_to, _amount);
+            castle.transfer(_to, _amount);
         }
     }
 
@@ -239,8 +235,8 @@ contract MasterChef is Ownable {
     }
 
     //Pancake has to add hidden dummy pools inorder to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _vikingPerBlock) public onlyOwner {
+    function updateEmissionRate(uint256 _castlePerBlock) public onlyOwner {
         massUpdatePools();
-        vikingPerBlock = _vikingPerBlock;
+        castlePerBlock = _castlePerBlock;
     }
 }
